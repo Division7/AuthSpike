@@ -6,9 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
-
-import java.util.Collection;
 
 
 @Data
@@ -21,7 +18,9 @@ public class User {
     @Id
     private String sub;
 
-    private Collection<GrantedAuthority> roles;
+    private String name;
+
+    private String email;
 
     private boolean admin;
 

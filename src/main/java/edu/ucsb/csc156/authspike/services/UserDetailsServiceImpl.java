@@ -3,19 +3,23 @@ package edu.ucsb.csc156.authspike.services;
 import edu.ucsb.csc156.authspike.entities.User;
 import edu.ucsb.csc156.authspike.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
-import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
-public class UserDetailsServiceImpl extends DefaultOAuth2UserService {
+public class UserDetailsServiceImpl extends OidcUserService {
 
     private final UserRepository userRepository;
 
@@ -25,9 +29,13 @@ public class UserDetailsServiceImpl extends DefaultOAuth2UserService {
     }
 
     @Override
-    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException{
-        OAuth2User oAuth2User = super.loadUser(userRequest);
-        Optional<User> currentUser = userRepository.findBySub((String) oAuth2User.getAttributes().get("sub"));
+    public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException{
+        OidcUser oidcUser = super.loadUser(userRequest);
+        return manageUser(oidcUser);
+    }
+
+    private OidcUser manageUser(OidcUser oidcUser){
+        Optional<User> currentUser = userRepository.findBySub(oidcUser.getSubject());
         Set<GrantedAuthority> authorities = new HashSet<>();
         if (currentUser.isPresent()) {
             User user = currentUser.get();
@@ -39,14 +47,32 @@ public class UserDetailsServiceImpl extends DefaultOAuth2UserService {
             }else{
                 authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
             }
+            if(!user.getName().equals(oidcUser.getFullName())){
+                user.setName(oidcUser.getFullName());
+                userRepository.save(user);
+            }
         }else{
-            User newUser = User.builder().sub((String) oAuth2User.getAttributes().get("sub")).build();
+            User newUser = User.builder()
+                    .sub(oidcUser.getSubject())
+                    .name(oidcUser.getFullName())
+                    .email(oidcUser.getEmail())
+                    .build();
             userRepository.save(newUser);
             authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
         }
-        System.out.println("This bitch actually ran");
-        authorities.addAll(oAuth2User.getAuthorities());
-        return new DefaultOAuth2User(authorities, oAuth2User.getAttributes(),  "sub");
+        authorities.addAll(oidcUser.getAuthorities());
+        return new DefaultOidcUser(authorities, oidcUser.getIdToken(),  oidcUser.getUserInfo());
+    }
+
+    public User getCurrentUser(){
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        Authentication auth = securityContext.getAuthentication();
+        if (auth != null){
+            OidcUser oauthUser =  (OidcUser) auth.getPrincipal();
+            return userRepository.findBySub(oauthUser.getSubject()).orElse(null);
+        }else{
+            return null;
+        }
     }
 
 }
