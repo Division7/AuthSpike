@@ -1,6 +1,7 @@
-package edu.ucsb.csc156.authspike.config;
+package edu.ucsb.cs156.authspike.config;
 
-import edu.ucsb.csc156.authspike.services.UserDetailsServiceImpl;
+import edu.ucsb.cs156.authspike.services.GithubSignInService;
+import edu.ucsb.cs156.authspike.services.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,18 +30,24 @@ public class SecurityConfig {
 
     UserDetailsServiceImpl userDetailsService;
 
-    public SecurityConfig(@Autowired UserDetailsServiceImpl userDetailsService) {
+    GithubSignInService githubSignInService;
+
+    public SecurityConfig(@Autowired UserDetailsServiceImpl userDetailsService, @Autowired GithubSignInService githubSignInService) {
         this.userDetailsService = userDetailsService;
+        this.githubSignInService = githubSignInService;
     }
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(
-                        authorizeRequests -> authorizeRequests.requestMatchers("/", "/index.html", "/swagger-ui.html").permitAll()
-                                .anyRequest().authenticated()
+                        authorizeRequests -> authorizeRequests.requestMatchers("/", "/index.html", "/swagger-ui/index.html", "/v3/api-docs", "/swagger-ui.html").permitAll()
+                                .anyRequest().permitAll()
                 ).oauth2Login(oauth2 -> {
-                    oauth2.userInfoEndpoint(userInfo -> userInfo.oidcUserService(userDetailsService));
+                    oauth2.userInfoEndpoint(userInfo -> {
+                        userInfo.oidcUserService(userDetailsService);
+                        userInfo.userService(githubSignInService);
+                    });
                 })
                 .csrf((csrf) -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
                 .cors(Customizer.withDefaults());
@@ -64,7 +71,7 @@ public class SecurityConfig {
 
     @Bean
     WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().requestMatchers("/h2-console/**", "/swagger-ui/**");
+        return (web) -> web.ignoring().requestMatchers("/h2-console/**");
     }
 
     @Bean

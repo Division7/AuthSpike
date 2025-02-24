@@ -1,4 +1,4 @@
-package edu.ucsb.csc156.authspike;
+package edu.ucsb.cs156.authspike;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

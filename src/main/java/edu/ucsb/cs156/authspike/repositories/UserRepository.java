@@ -1,6 +1,6 @@
-package edu.ucsb.csc156.authspike.repositories;
+package edu.ucsb.cs156.authspike.repositories;
 
-import edu.ucsb.csc156.authspike.entities.User;
+import edu.ucsb.cs156.authspike.entities.User;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;

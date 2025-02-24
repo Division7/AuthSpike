@@ -1,14 +1,10 @@
-package edu.ucsb.csc156.authspike.services;
+package edu.ucsb.cs156.authspike.services;
 
-import edu.ucsb.csc156.authspike.entities.User;
-import edu.ucsb.csc156.authspike.repositories.UserRepository;
+import edu.ucsb.cs156.authspike.entities.User;
+import edu.ucsb.cs156.authspike.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -31,10 +27,10 @@ public class UserDetailsServiceImpl extends OidcUserService {
     @Override
     public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException{
         OidcUser oidcUser = super.loadUser(userRequest);
-        return manageUser(oidcUser);
+        return managePrimarySignIn(oidcUser);
     }
 
-    private OidcUser manageUser(OidcUser oidcUser){
+    private OidcUser managePrimarySignIn(OidcUser oidcUser){
         Optional<User> currentUser = userRepository.findBySub(oidcUser.getSubject());
         Set<GrantedAuthority> authorities = new HashSet<>();
         if (currentUser.isPresent()) {
@@ -62,17 +58,6 @@ public class UserDetailsServiceImpl extends OidcUserService {
         }
         authorities.addAll(oidcUser.getAuthorities());
         return new DefaultOidcUser(authorities, oidcUser.getIdToken(),  oidcUser.getUserInfo());
-    }
-
-    public User getCurrentUser(){
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        Authentication auth = securityContext.getAuthentication();
-        if (auth != null){
-            OidcUser oauthUser =  (OidcUser) auth.getPrincipal();
-            return userRepository.findBySub(oauthUser.getSubject()).orElse(null);
-        }else{
-            return null;
-        }
     }
 
 }
