@@ -4,6 +4,8 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 .env
+key.pem
+pkcs8.key
 
 ### STS ###
 .apt_generated
