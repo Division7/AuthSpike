@@ -68,8 +68,7 @@ public class JwtService {
 
     public String getInstallationToken(String installationId) throws JsonProcessingException {
         String token = getJwt();
-        String ENDPOINT = "https://api.github.com/app/installations/61554210/access_tokens";
-        System.out.println(privateKey);
+        String ENDPOINT = "https://api.github.com/app/installations/"+installationId+"/access_tokens";
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + token);
         headers.add("Accept", "application/vnd.github+json");

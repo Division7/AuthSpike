@@ -3,6 +3,7 @@ package edu.ucsb.cs156.authspike.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import edu.ucsb.cs156.authspike.entities.Installation;
 import edu.ucsb.cs156.authspike.services.JwtService;
 import io.jsonwebtoken.Jwts;
@@ -68,6 +69,27 @@ public class InstallationController {
         String NEWENDPOINT = "https://api.github.com/users/Division7/repos";
         ResponseEntity<String> newResponse = restTemplate.exchange(NEWENDPOINT, HttpMethod.GET,  newEntity, String.class);
 
+        return newResponse.getBody();
+    }
+
+    @GetMapping("testStudentRepos")
+    public String testStudentRepos() throws JsonProcessingException {
+
+        String ENDPOINT = "https://api.github.com/repos/ucsb-cs156-s25/STARTER-team01/forks";
+        String token = jwtService.getInstallationToken("61829186");
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.add("Authorization", "Bearer " + token);
+        requestHeaders.add("Accept", "application/vnd.github+json");
+        requestHeaders.add("X-GitHub-Api-Version", "2022-11-28");
+        String body = """
+                {
+                \"organization\":\"ucsb-cs156-s25\",
+                \"name\":\"student-repo-1\",
+                \"default_branch_only\": true
+                }
+                """;
+        HttpEntity<String> entity = new HttpEntity<>(body, requestHeaders);
+        ResponseEntity<String> newResponse = restTemplate.exchange(ENDPOINT, HttpMethod.POST,  entity, String.class);
         return newResponse.getBody();
     }
 
