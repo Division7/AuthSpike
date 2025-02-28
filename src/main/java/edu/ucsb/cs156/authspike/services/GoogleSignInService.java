@@ -15,12 +15,12 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service
-public class UserDetailsServiceImpl extends OidcUserService {
+public class GoogleSignInService extends OidcUserService {
 
     private final UserRepository userRepository;
 
     @Autowired
-    public UserDetailsServiceImpl(UserRepository userRepository) {
+    public GoogleSignInService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 

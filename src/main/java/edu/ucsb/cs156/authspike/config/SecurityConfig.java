@@ -1,7 +1,7 @@
 package edu.ucsb.cs156.authspike.config;
 
 import edu.ucsb.cs156.authspike.services.GithubSignInService;
-import edu.ucsb.cs156.authspike.services.UserDetailsServiceImpl;
+import edu.ucsb.cs156.authspike.services.GoogleSignInService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,11 +28,11 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    UserDetailsServiceImpl userDetailsService;
+    GoogleSignInService userDetailsService;
 
     GithubSignInService githubSignInService;
 
-    public SecurityConfig(@Autowired UserDetailsServiceImpl userDetailsService, @Autowired GithubSignInService githubSignInService) {
+    public SecurityConfig(@Autowired GoogleSignInService userDetailsService, @Autowired GithubSignInService githubSignInService) {
         this.userDetailsService = userDetailsService;
         this.githubSignInService = githubSignInService;
     }
