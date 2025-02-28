@@ -6,6 +6,7 @@ target/
 .env
 key.pem
 pkcs8.key
+secrets.yaml
 
 ### STS ###
 .apt_generated

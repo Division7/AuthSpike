@@ -43,7 +43,7 @@ public class JwtService {
 
     private RSAPrivateKey getPrivateKey()  {
         try {
-            String key = new String(Files.readAllBytes(Path.of("./pkcs8.key")), Charset.defaultCharset());
+            String key = privateKey;
             key = key.replace("-----BEGIN PRIVATE KEY-----", "");
             key = key.replace("-----END PRIVATE KEY-----", "");
             key = key.replaceAll(System.lineSeparator(), "");
@@ -54,10 +54,6 @@ public class JwtService {
             System.out.println(e);
             return null;
         }
-    }
-
-    public String getClientId(){
-        return clientId;
     }
 
     public String getJwt(){
@@ -73,7 +69,7 @@ public class JwtService {
     public String getInstallationToken(String installationId) throws JsonProcessingException {
         String token = getJwt();
         String ENDPOINT = "https://api.github.com/app/installations/61554210/access_tokens";
-
+        System.out.println(privateKey);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + token);
         headers.add("Accept", "application/vnd.github+json");
