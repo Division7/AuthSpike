@@ -7,6 +7,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import edu.ucsb.cs156.authspike.entities.Installation;
 import edu.ucsb.cs156.authspike.services.JwtService;
 import io.jsonwebtoken.Jwts;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.PushCommand;
+import org.eclipse.jgit.api.RemoteAddCommand;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.transport.URIish;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -18,11 +23,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.File;
+import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 
 @RestController
@@ -73,24 +82,82 @@ public class InstallationController {
     }
 
     @GetMapping("testStudentRepos")
-    public String testStudentRepos() throws JsonProcessingException {
+    public String testStudentRepos() throws JsonProcessingException, GitAPIException, URISyntaxException {
 
-        String ENDPOINT = "https://api.github.com/repos/ucsb-cs156-s25/STARTER-team01/forks";
+        String ENDPOINT = "https://api.github.com/orgs/ucsb-cs156-s25/repos";
         String token = jwtService.getInstallationToken("61829186");
         HttpHeaders requestHeaders = new HttpHeaders();
         requestHeaders.add("Authorization", "Bearer " + token);
         requestHeaders.add("Accept", "application/vnd.github+json");
         requestHeaders.add("X-GitHub-Api-Version", "2022-11-28");
-        String body = """
-                {
-                \"organization\":\"ucsb-cs156-s25\",
-                \"name\":\"student-repo-1\",
-                \"default_branch_only\": true
-                }
-                """;
-        HttpEntity<String> entity = new HttpEntity<>(body, requestHeaders);
+        Map<String, Object> body = new HashMap<>();
+        body.put("name", "student-repo-2");
+        String bodyString = objectMapper.writeValueAsString(body);
+        HttpEntity<String> entity = new HttpEntity<>(bodyString, requestHeaders);
         ResponseEntity<String> newResponse = restTemplate.exchange(ENDPOINT, HttpMethod.POST,  entity, String.class);
-        return newResponse.getBody();
+        Git git = Git.cloneRepository()
+                .setURI("https://git:"+token+"@github.com/ucsb-cs156-s25/STARTER-team01.git")
+                .setDirectory(new File("temp/repo1"))
+                .call();
+        RemoteAddCommand addCommand = git.remoteAdd();
+        addCommand.setName("student2");
+        addCommand.setUri(new URIish("https://git:"+token+"@github.com/ucsb-cs156-s25/student-repo-2.git"));
+        addCommand.call();
+
+        PushCommand push = git.push();
+        push.setRemote("student2");
+        push.call();
+        HttpHeaders secondRequestHeaders = new HttpHeaders();
+        secondRequestHeaders.add("Authorization", "Bearer " + token);
+        secondRequestHeaders.add("Accept", "application/vnd.github+json");
+        secondRequestHeaders.add("X-GitHub-Api-Version", "2022-11-28");
+        String SECONDENDPOINT = "https://api.github.com/rate_limit";
+        HttpEntity<String> newEntity = new HttpEntity<>(secondRequestHeaders);
+        ResponseEntity<String> secondResponse = restTemplate.exchange(SECONDENDPOINT, HttpMethod.GET,  newEntity, String.class);
+        return secondResponse.getBody();
+    }
+
+    @GetMapping("provideToken")
+    public String provideToken() throws JsonProcessingException {
+        return jwtService.getInstallationToken("61829186");
+    }
+
+    @GetMapping("testPushRepo")
+    public String testPushRepo() throws GitAPIException, JsonProcessingException, URISyntaxException {
+        String token = jwtService.getInstallationToken("61829186");
+        Git git = Git.cloneRepository()
+                .setURI("https://git:"+token+"@github.com/ucsb-cs156-s25/STARTER-team01.git")
+                .setDirectory(new File("temp/repo1"))
+                .call();
+        RemoteAddCommand addCommand = git.remoteAdd();
+        addCommand.setName("student1");
+        addCommand.setUri(new URIish("https://git:"+token+"@github.com/ucsb-cs156-s25/student-repo-2.git"));
+        addCommand.call();
+
+        PushCommand push = git.push();
+        push.setRemote("student1");
+        push.call();
+        HttpHeaders secondRequestHeaders = new HttpHeaders();
+        secondRequestHeaders.add("Authorization", "Bearer " + token);
+        secondRequestHeaders.add("Accept", "application/vnd.github+json");
+        secondRequestHeaders.add("X-GitHub-Api-Version", "2022-11-28");
+        String SECONDENDPOINT = "https://api.github.com/rate_limit";
+        HttpEntity<String> newEntity = new HttpEntity<>(secondRequestHeaders);
+        ResponseEntity<String> secondResponse = restTemplate.exchange(SECONDENDPOINT, HttpMethod.POST,  newEntity, String.class);
+        return secondResponse.getBody();
+    }
+
+    @GetMapping("testRateLimits")
+    public String testRateLimits() throws JsonProcessingException {
+        String token = jwtService.getInstallationToken("61829186");
+        HttpHeaders secondRequestHeaders = new HttpHeaders();
+        secondRequestHeaders.add("Authorization", "Bearer " + token);
+        secondRequestHeaders.add("Accept", "application/vnd.github+json");
+        secondRequestHeaders.add("X-GitHub-Api-Version", "2022-11-28");
+        String SECONDENDPOINT = "https://api.github.com/rate_limit";
+        HttpEntity<String> newEntity = new HttpEntity<>(secondRequestHeaders);
+        ResponseEntity<String> secondResponse = restTemplate.exchange(SECONDENDPOINT, HttpMethod.GET,  newEntity, String.class);
+        return secondResponse.getBody();
     }
 
 
