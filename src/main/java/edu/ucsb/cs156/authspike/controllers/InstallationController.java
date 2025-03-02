@@ -17,6 +17,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.FileSystemUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -83,7 +84,6 @@ public class InstallationController {
 
     @GetMapping("testStudentRepos")
     public String testStudentRepos() throws JsonProcessingException, GitAPIException, URISyntaxException {
-
         String ENDPOINT = "https://api.github.com/orgs/ucsb-cs156-s25/repos";
         String token = jwtService.getInstallationToken("61829186");
         HttpHeaders requestHeaders = new HttpHeaders();
@@ -91,21 +91,21 @@ public class InstallationController {
         requestHeaders.add("Accept", "application/vnd.github+json");
         requestHeaders.add("X-GitHub-Api-Version", "2022-11-28");
         Map<String, Object> body = new HashMap<>();
-        body.put("name", "student-repo-2");
+        body.put("name", "student-repo-4");
         String bodyString = objectMapper.writeValueAsString(body);
         HttpEntity<String> entity = new HttpEntity<>(bodyString, requestHeaders);
         ResponseEntity<String> newResponse = restTemplate.exchange(ENDPOINT, HttpMethod.POST,  entity, String.class);
         Git git = Git.cloneRepository()
                 .setURI("https://git:"+token+"@github.com/ucsb-cs156-s25/STARTER-team01.git")
-                .setDirectory(new File("temp/repo1"))
+                .setDirectory(new File("temp/repo4"))
                 .call();
         RemoteAddCommand addCommand = git.remoteAdd();
-        addCommand.setName("student2");
-        addCommand.setUri(new URIish("https://git:"+token+"@github.com/ucsb-cs156-s25/student-repo-2.git"));
+        addCommand.setName("student4");
+        addCommand.setUri(new URIish("https://git:"+token+"@github.com/ucsb-cs156-s25/student-repo-4.git"));
         addCommand.call();
 
         PushCommand push = git.push();
-        push.setRemote("student2");
+        push.setRemote("student4");
         push.call();
         HttpHeaders secondRequestHeaders = new HttpHeaders();
         secondRequestHeaders.add("Authorization", "Bearer " + token);
@@ -114,6 +114,7 @@ public class InstallationController {
         String SECONDENDPOINT = "https://api.github.com/rate_limit";
         HttpEntity<String> newEntity = new HttpEntity<>(secondRequestHeaders);
         ResponseEntity<String> secondResponse = restTemplate.exchange(SECONDENDPOINT, HttpMethod.GET,  newEntity, String.class);
+        boolean result = FileSystemUtils.deleteRecursively(new File("temp/repo4"));
         return secondResponse.getBody();
     }
 
