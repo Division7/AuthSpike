@@ -4,7 +4,9 @@ import edu.ucsb.cs156.authspike.entities.User;
 import edu.ucsb.cs156.authspike.services.CurrentUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -14,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 
-@SpringBootApplication
+@SpringBootApplication(exclude = LiquibaseAutoConfiguration.class)
 @RestController
 @RequestMapping("/api/testing")
 public class AuthSpikeApplication {
