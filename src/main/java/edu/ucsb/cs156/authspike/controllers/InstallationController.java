@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import edu.ucsb.cs156.authspike.entities.Installation;
 import edu.ucsb.cs156.authspike.services.JwtService;
+import edu.ucsb.cs156.authspike.services.TemporaryDynamicInformationService;
 import io.jsonwebtoken.Jwts;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PushCommand;
@@ -42,12 +43,16 @@ public class InstallationController {
 
     private final RestTemplate restTemplate;
 
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
-    public InstallationController(JwtService jwtService, RestTemplateBuilder restTemplateBuilder, ObjectMapper objectMapper) {
+    private final String installationId;
+
+
+    public InstallationController(JwtService jwtService, RestTemplateBuilder restTemplateBuilder, ObjectMapper objectMapper,  TemporaryDynamicInformationService temporaryDynamicInformationService) {
         this.jwtService = jwtService;
         restTemplate = restTemplateBuilder.build();
         this.objectMapper = objectMapper;
+        this.installationId = temporaryDynamicInformationService.getInstallationId();
     }
 
     @GetMapping("installation")
@@ -62,13 +67,13 @@ public class InstallationController {
         headers.add("X-GitHub-Api-Version", "2022-11-28");
         HttpEntity<String> entity = new HttpEntity<>(headers);
         ResponseEntity<String> response = restTemplate.exchange(ENDPOINT, HttpMethod.GET,  entity, String.class);
-        return response.getBody();
+        return response.getBody().toString() + "\n\n\n INSTALLATION ID: " + installation_id;
     }
 
     @GetMapping("privateKey")
     public String getToken() throws NoSuchAlgorithmException, InvalidKeySpecException, JsonProcessingException {
 
-        String token = jwtService.getInstallationToken("61554210");
+        String token = jwtService.getInstallationToken(installationId);
 
         HttpHeaders requestHeaders = new HttpHeaders();
         requestHeaders.add("Authorization", "Bearer " + token);
@@ -85,7 +90,7 @@ public class InstallationController {
     @GetMapping("testStudentRepos")
     public String testStudentRepos() throws JsonProcessingException, GitAPIException, URISyntaxException {
         String ENDPOINT = "https://api.github.com/orgs/ucsb-cs156-s25/repos";
-        String token = jwtService.getInstallationToken("61829186");
+        String token = jwtService.getInstallationToken(installationId);
         HttpHeaders requestHeaders = new HttpHeaders();
         requestHeaders.add("Authorization", "Bearer " + token);
         requestHeaders.add("Accept", "application/vnd.github+json");
@@ -120,12 +125,12 @@ public class InstallationController {
 
     @GetMapping("provideToken")
     public String provideToken() throws JsonProcessingException {
-        return jwtService.getInstallationToken("61829186");
+        return jwtService.getInstallationToken(installationId);
     }
 
     @GetMapping("testPushRepo")
     public String testPushRepo() throws GitAPIException, JsonProcessingException, URISyntaxException {
-        String token = jwtService.getInstallationToken("61829186");
+        String token = jwtService.getInstallationToken(installationId);
         Git git = Git.cloneRepository()
                 .setURI("https://git:"+token+"@github.com/ucsb-cs156-s25/STARTER-team01.git")
                 .setDirectory(new File("temp/repo1"))
@@ -150,7 +155,7 @@ public class InstallationController {
 
     @GetMapping("testRateLimits")
     public String testRateLimits() throws JsonProcessingException {
-        String token = jwtService.getInstallationToken("61829186");
+        String token = jwtService.getInstallationToken(installationId);
         HttpHeaders secondRequestHeaders = new HttpHeaders();
         secondRequestHeaders.add("Authorization", "Bearer " + token);
         secondRequestHeaders.add("Accept", "application/vnd.github+json");

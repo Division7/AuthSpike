@@ -8,6 +8,7 @@ key.pem
 pkcs8.key
 secrets.yaml
 pkcs8-dokku.key
+*.pem
 
 ### STS ###
 .apt_generated
