@@ -97,7 +97,13 @@ Next, start your project:
 mvn spring-boot:run
 ```
 
-Now, move back to your Github window, and on the left-hand side, click "Install App". Select "Install" next to "ucsb-cs156-s25". It must be an organization, not a user, as the API differs for user repositories.
+Now, move back to your Github window, and on the left-hand side, click "Install App".
+![image](https://github.com/user-attachments/assets/b61b180f-a905-4ff2-a4de-b5f423407eff)
+
+Select "Install" next to "ucsb-cs156-s25". It must be an organization, not a user, as the API differs for user repositories.
+
+![image](https://github.com/user-attachments/assets/f08c5c1a-efca-4b67-be2f-9c0120099752)
+
 
 Select "All Repositories". Then, select "Install and Authorize." This should take you to your localhost application link. The bottom line should say `INSTALLATION ID:` and then a series of numbers. Take those numbers, and place those in your .env as "INSTALLATION_ID".
 
