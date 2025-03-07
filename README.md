@@ -83,6 +83,7 @@ app:
 <Your Key>
 -----END PRIVATE KEY-----
 "
+```
 
 Next, we'll fill in `.env`. Create a copy of it with:
 ```bash
