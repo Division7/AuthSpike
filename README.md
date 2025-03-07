@@ -1,1 +1,87 @@
-example readme so I can web edit it
+# Installing on Localhost
+First, clone the repository. This can be done with the following command:
+```bash
+git clone git@github.com:Division7/AuthSpike.git
+```
+Then, obtain a set of Google Cloud Credentials. Directions for obtaining these can be found [here](https://ucsb-cs156.github.io/topics/oauth/oauth_google_setup.html).
+Next, we'll set up the Github App. To do so, go to https://github.com/
+
+Then, click your profile icon. Click "Settings". Then, Click "Developer Settings", on the bottom of the toolbar on the left.
+
+Select "New Github App". Fill in an appropriate name, and write it down. You will need it later.
+
+For the homepage url, fill in `http://localhost:8080`.
+
+For Callback URLs, select "Add Callback URL"
+
+In the first callback URL, fill in `http://localhost:8080/api/installations/installation`. For the second URL, fill in `http://localhost:8080/login/oauth2/code/github`.
+
+Click the checkbox for "Request user authorization (OAuth) during installation"
+
+Scroll down to permissions, and under repository, set the following accesses:
+- Administration: Read and Write
+- Contents: Read and Write
+- Metadata: Read-only
+- Workflows: Read and Write
+
+Under Organization, select the following permissions:
+- Administration: Read and Write
+
+Then, scroll further and uncheck "Active" under "Webhooks"
+
+Then, scroll further and under "Where can this Github App be installed?" select "Any Account"
+
+Click "Create".
+
+Now, Select "Generate Client Secret". Copy this client secret to a safe location, you will use it in a few minutes. Copy the Client ID as well.
+
+Scroll down to "Private Keys" and select "Generate a Private Key"
+
+Though we will now start using other applications, keep this Github window open. You'll need it later.
+
+This will download a private key to your computer. Move this file into the repository directory. Importantly, **Do not commit this file**.
+
+Next, we will switch the standard of the key we just downloaded so Java can understand it.
+To do so, open a terminal in the repository folder, and run the following command, replacing `<file-name>` with the name of the key.
+```bash
+openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in <file-name> -out pkcs8.key
+```
+
+Next, create a copy of `secrets.yaml.EXAMPLE` with the following command:
+```bash
+cp secrets.yaml.EXAMPLE secrets.yaml
+```
+
+Now, we're going to take the key we generated and place it into secrets.yaml. Output the key into the terminal with the following command:
+```bash
+cat pkcs8.key
+```
+
+Copy the output from this command, and paste it into secrets.yaml, replacing add your key here with the output. The file should now look like this:
+```yaml
+app:
+  private:
+    key:"-----BEGIN PRIVATE KEY-----
+<Your Key>
+-----END PRIVATE KEY-----
+"
+
+Next, we'll fill in `.env`. Create a copy of it with:
+```bash
+cp .env.EXAMPLE .env
+```
+
+Fill in your Google secrets, from the article at the beginning. Additionally, fill in your Github Client ID and Client Secret, named `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GITHUB_CLIENT_ID`, and `GITHUB_CLIENT_SECRET` respectively.
+
+Next, start your project:
+```bash
+mvn spring-boot:run
+```
+
+Now, move back to your Github window, and on the left-hand side, click "Install App". Select "Install" next to "ucsb-cs156-s25". It must be an organization, not a user, as the API differs for user repositories.
+
+Select "All Repositories". Then, select "Install and Authorize." This should take you to your localhost application link. The bottom line should say `INSTALLATION ID:` and then a series of numbers. Take those numbers, and place those in your .env as "INSTALLATION_ID".
+
+Stop your application, and then run it again with `mvn spring-boot:run`.
+
+Try the endpoint https://localhost:8080/api/installations/testStudentRepos to test creating and pushing a student repo, or https://localhost:8080/api/installations/provideToken to get a github application token.
