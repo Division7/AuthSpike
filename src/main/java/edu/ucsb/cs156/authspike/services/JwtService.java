@@ -46,8 +46,9 @@ public class JwtService {
             String key = privateKey;
             key = key.replace("-----BEGIN PRIVATE KEY-----", "");
             key = key.replace("-----END PRIVATE KEY-----", "");
+            key = key.replaceAll(" ", "");
             key = key.replaceAll(System.lineSeparator(), "");
-            PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(key));
+            PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(key.getBytes()));
             KeyFactory kf = KeyFactory.getInstance("RSA");
             return (RSAPrivateKey) kf.generatePrivate(spec);
         } catch (Exception e) {
