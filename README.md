@@ -90,7 +90,7 @@ Next, we'll fill in `.env`. Create a copy of it with:
 cp .env.EXAMPLE .env
 ```
 
-Fill in your Google secrets, from the article at the beginning. Additionally, fill in your Github Client ID and Client Secret, named `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GITHUB_CLIENT_ID`, and `GITHUB_CLIENT_SECRET` respectively.
+Fill in your Google secrets, from the article at the beginning. Additionally, fill in your Github Client ID and Client Secret, named `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GITHUB_CLIENT_ID`, and `GITHUB_CLIENT_SECRET` respectively. Leave `APP_INSTALLATION_ID` for now, we will come back to it.
 
 Next, start your project:
 ```bash
@@ -105,7 +105,7 @@ Select "Install" next to "ucsb-cs156-s25". It must be an organization, not a use
 ![image](https://github.com/user-attachments/assets/f08c5c1a-efca-4b67-be2f-9c0120099752)
 
 
-Select "All Repositories". Then, select "Install and Authorize." This should take you to your localhost application link. The bottom line should say `INSTALLATION ID:` and then a series of numbers. Take those numbers, and place those in your .env as "INSTALLATION_ID".
+Select "All Repositories". Then, select "Install and Authorize." This should take you to your localhost application link. The bottom line should say `INSTALLATION ID:` and then a series of numbers. Take those numbers, and place those in your .env as "APP_INSTALLATION_ID".
 
 Stop your application, and then run it again with `mvn spring-boot:run`.
 
