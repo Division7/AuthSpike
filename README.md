@@ -61,7 +61,7 @@ Copy the output from this command, and paste it into secrets.yaml, replacing add
 ```yaml
 app:
   private:
-    key:"-----BEGIN PRIVATE KEY-----
+    key: "-----BEGIN PRIVATE KEY-----
 <Your Key>
 -----END PRIVATE KEY-----
 "
