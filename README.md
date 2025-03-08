@@ -109,4 +109,4 @@ Select "All Repositories". Then, select "Install and Authorize." This should tak
 
 Stop your application, and then run it again with `mvn spring-boot:run`.
 
-Try the endpoint https://localhost:8080/api/installations/testStudentRepos to test creating and pushing a student repo, or https://localhost:8080/api/installations/provideToken to get a github application token.
+Try the endpoint http://localhost:8080/api/installations/testStudentRepos to test creating and pushing a student repo, or http://localhost:8080/api/installations/provideToken to get a github application token.
