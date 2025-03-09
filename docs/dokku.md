@@ -27,7 +27,8 @@ Select "New Github App". Fill in an appropriate name, and write it down. You wil
 
 For the homepage url, fill in `https://<appname>.dokku-<dokku-number>.cs.ucsb.edu`.
 
-![image](https://github.com/user-attachments/assets/bec66087-ca4a-4fc4-af3d-9ad663c24eb2)
+![image](https://github.com/user-attachments/assets/c0e06e2a-2aad-4b3a-af55-46448ed571ee)
+
 
 
 For Callback URLs, select "Add Callback URL"
@@ -37,7 +38,8 @@ In the first callback URL, fill in `https://<appname>.dokku-<dokku-number>.cs.uc
 
 Click the checkbox for "Request user authorization (OAuth) during installation"
 
-![image](https://github.com/user-attachments/assets/7b52701a-6108-4d54-832e-0db0f2d1d1e5)
+![image](https://github.com/user-attachments/assets/05e47776-b71b-40fb-a247-f42f609fcd13)
+
 
 
 Scroll down to permissions, and under repository, set the following accesses:
@@ -133,14 +135,16 @@ Your app will now restart. When it comes back up, so that you can use the endpoi
 dokku postgres:connect <db-name>
 ```
 
-Then, run the following PostgreSQL command to grant yourself (or any previously signed in user) administrator permissions:
+Then, run the following PostgreSQL command to grant yourself administrator permissions, replacing `<your-email>` with the email you used to sign in:
 ```SQL
-UPDATE "user" SET admin = true WHERE admin = false;
+UPDATE "user" SET admin = true WHERE email SIMILAR TO '%<your-email>%';
 ```
 It should output this:
 ```bash
 UPDATE 1
 ```
+
+You can use `\q` to quit the database.
 
 Your application should now be ready!
 
