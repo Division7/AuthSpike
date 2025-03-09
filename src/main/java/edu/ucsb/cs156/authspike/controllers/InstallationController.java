@@ -18,6 +18,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -71,6 +72,7 @@ public class InstallationController {
     }
 
     @GetMapping("privateKey")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public String getToken() throws NoSuchAlgorithmException, InvalidKeySpecException, JsonProcessingException {
 
         String token = jwtService.getInstallationToken(installationId);
@@ -88,6 +90,7 @@ public class InstallationController {
     }
 
     @GetMapping("testStudentRepos")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public String testStudentRepos() throws JsonProcessingException, GitAPIException, URISyntaxException {
         String ENDPOINT = "https://api.github.com/orgs/ucsb-cs156-s25/repos";
         String token = jwtService.getInstallationToken(installationId);
@@ -124,11 +127,13 @@ public class InstallationController {
     }
 
     @GetMapping("provideToken")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public String provideToken() throws JsonProcessingException {
         return jwtService.getInstallationToken(installationId);
     }
 
     @GetMapping("testPushRepo")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public String testPushRepo() throws GitAPIException, JsonProcessingException, URISyntaxException {
         String token = jwtService.getInstallationToken(installationId);
         Git git = Git.cloneRepository()
@@ -154,6 +159,7 @@ public class InstallationController {
     }
 
     @GetMapping("testRateLimits")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public String testRateLimits() throws JsonProcessingException {
         String token = jwtService.getInstallationToken(installationId);
         HttpHeaders secondRequestHeaders = new HttpHeaders();
