@@ -1,9 +1,6 @@
 # Deploying on Dokku
-## Step 1: Log in to your dokku machine
 
 See: <https://ucsb-cs156.github.io/topics/dokku/logging_in.html> for details.
-
-## Step 2: Create the app (`dokku apps:create ...`)
 
 Create the app with this command
 
@@ -16,7 +13,8 @@ where <tt><i>appname</i></tt> is typically something like one of the following:
 
 We'll use <tt><i>appname</i></tt> throughout the rest of these instructions without further explanation.
 
-Then, obtain a set of Google Cloud Credentials. Directions for obtaining these can be found [here](https://ucsb-cs156.github.io/topics/oauth/oauth_google_setup.html).
+Next, obtain a set of Google Cloud Credentials. Directions for obtaining these can be found [here](https://ucsb-cs156.github.io/topics/oauth/oauth_google_setup.html).
+
 Next, we'll set up the Github App. To do so, go to https://github.com/
 
 Then, click your profile icon. Click "Settings". Then, Click "Developer Settings", on the bottom of the toolbar on the left.
