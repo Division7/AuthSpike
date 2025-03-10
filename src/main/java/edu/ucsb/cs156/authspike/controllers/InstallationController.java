@@ -14,10 +14,7 @@ import org.eclipse.jgit.api.RemoteAddCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.transport.URIish;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -170,6 +167,25 @@ public class InstallationController {
         HttpEntity<String> newEntity = new HttpEntity<>(secondRequestHeaders);
         ResponseEntity<String> secondResponse = restTemplate.exchange(SECONDENDPOINT, HttpMethod.GET,  newEntity, String.class);
         return secondResponse.getBody();
+    }
+
+    @GetMapping("redirect")
+    public ResponseEntity<Void> sendToGithub() throws JsonProcessingException {
+        String token = jwtService.getJwt();
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.add("Authorization", "Bearer " + token);
+        requestHeaders.add("Accept", "application/vnd.github+json");
+        requestHeaders.add("X-GitHub-Api-Version", "2022-11-28");
+        String ENDPOINT = "https://api.github.com/app";
+        HttpEntity<String> newEntity = new HttpEntity<>(requestHeaders);
+        ResponseEntity<String> response = restTemplate.exchange(ENDPOINT, HttpMethod.GET,  newEntity, String.class);
+
+        JsonNode responseJson = objectMapper.readTree(response.getBody());
+
+        String newUrl = responseJson.get("html_url").toString().replaceAll("\"", "") + "/installations/new";
+        //found this convenient solution here: https://stackoverflow.com/questions/29085295/spring-mvc-restcontroller-and-redirect
+        return ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY).header(HttpHeaders.LOCATION, newUrl).build();
+
     }
 
 
