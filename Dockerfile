@@ -29,7 +29,4 @@ COPY . /home/app
 
 RUN mvn -B -Pproduction -DskipTests -f /home/app/pom.xml clean package
 
-CMD ["ENV", "JDBC_DATABASE_PASSWORD=$(echo \"$DATABASE_URL\" | cut --delimiter=: -f3 | cut --delimiter=\@ -f1)"]
-CMD ["ENV", "JDBC_DATABASE_URL=$(echo \"$DATABASE_URL\" | cut --delimiter=\@ -f2)"]
-CMD ["ENV", "JDBC_DATABASE_USERNAME=postgres"]
-ENTRYPOINT ["java","-jar","/home/app/target/AuthSpike-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["/home/app/startup.sh","/home/app/target/AuthSpike-0.0.1-SNAPSHOT.jar"]
