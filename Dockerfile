@@ -15,9 +15,6 @@ RUN rm -rf /var/lib/apt/lists/*
 # Set JAVA_HOME environment variable
 ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
 ENV PATH="$JAVA_HOME/bin:$PATH"
-ENV JDBC_DATABASE_PASSWORD=$(echo "$DATABASE_URL" | cut --delimiter=: -f3 | cut --delimiter=\@ -f1)
-ENV JDBC_DATABASE_URL=$(echo "$DATABASE_URL" | cut --delimiter=\@ -f2)
-ENV JDBC_DATABASE_USERNAME=postgres
 
 # Verify installation
 RUN java -version
@@ -32,4 +29,7 @@ COPY . /home/app
 
 RUN mvn -B -Pproduction -DskipTests -f /home/app/pom.xml clean package
 
+CMD ["ENV", "JDBC_DATABASE_PASSWORD=$(echo \"$DATABASE_URL\" | cut --delimiter=: -f3 | cut --delimiter=\@ -f1)"]
+CMD ["ENV", "JDBC_DATABASE_URL=$(echo \"$DATABASE_URL\" | cut --delimiter=\@ -f2)"]
+CMD ["ENV", "JDBC_DATABASE_USERNAME=postgres"]
 ENTRYPOINT ["java","-jar","/home/app/target/AuthSpike-0.0.1-SNAPSHOT.jar"]
