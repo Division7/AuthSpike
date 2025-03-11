@@ -29,4 +29,5 @@ COPY . /home/app
 
 RUN mvn -B -Pproduction -DskipTests -f /home/app/pom.xml clean package
 
+RUN ["chmod", "+x", "/home/app/startup.sh"]
 ENTRYPOINT ["/home/app/startup.sh","/home/app/target/AuthSpike-0.0.1-SNAPSHOT.jar"]
